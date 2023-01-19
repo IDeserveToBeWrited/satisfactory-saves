@@ -25,6 +25,7 @@ from playwright.sync_api import sync_playwright
 import time
 
 import glob
+import os
 saves = glob.glob(r"C:\Users\doode\AppData\Local\FactoryGame\Saved\SaveGames\76561198048397086\*.sav")
 
 # map load selectors
@@ -35,7 +36,7 @@ selector2 = "#leafletMap > div.leaflet-control-container > div.leaflet-top.leafl
 # rectangle
 selector3 = "#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div:nth-child(6) > a:nth-child(2) > i"
 # circle
-selector4 = "#leafletMap > div.leaflet-control-container >	 div.leaflet-top.leaflet-left > div:nth-child(6) > a:nth-child(3)"
+selector4 = "#leafletMap > div.leaflet-control-container >   div.leaflet-top.leaflet-left > div:nth-child(6) > a:nth-child(3)"
 
 
 
@@ -51,51 +52,60 @@ print("Site loaded")
 
 # cookies 1
 if page.locator("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-1litn2c"):
-	page.locator("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-1litn2c").click()
-	print("click 1")
+    page.locator("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-1litn2c").click()
+    print("click 1")
 
 # cookies 2
 if page.locator("body > div.cc-window.cc-banner.cc-type-info.cc-theme-block.cc-bottom.cc-color-override-688238583 > div > a"):
-	page.locator("body > div.cc-window.cc-banner.cc-type-info.cc-theme-block.cc-bottom.cc-color-override-688238583 > div > a").click()
-	print("click 2")
+    page.locator("body > div.cc-window.cc-banner.cc-type-info.cc-theme-block.cc-bottom.cc-color-override-688238583 > div > a").click()
+    print("click 2")
 
 # patreon
-if page.locator("#patreonModal > div > div > div.modal-header > button > span"):	
-	page.locator("#patreonModal > div > div > div.modal-header > button > span").click()
-	print("click 3")
+if page.locator("#patreonModal > div > div > div.modal-header > button > span"):    
+    page.locator("#patreonModal > div > div > div.modal-header > button > span").click()
+    print("click 3")
 
 time.sleep(2)
 
-# file upload?
-page.set_default_timeout(120*1000) # 120 seconds timeout for parsing
-page.set_input_files('input[type="file"]', 'save.sav')
-print("File uploaded, waiting to parse...")
-# wait for map to parse
-page.wait_for_selector("#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div:nth-child(6) > a:nth-child(2) > i")
-print("Parsed?")
-# page.set_default_timeout(30000) # return to default timeout
-# fullscreen map
-#page.locator("#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div.leaflet-control-fullscreen.leaflet-bar.leaflet-control > a").click()
-#page.get_by_text("View Fullscreen").click()
-page.locator("xpath=/html/body/main/div[2]/div[2]/div[1]/div/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/a").click()
-print("Fullscreen")
 
-#zomm out
-print("Zooming out")
-#for x in range(16):
-#	page.locator("#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div:nth-child(1) > a.leaflet-control-zoom-out > span").click()
-#	time.sleep(2)
-#page.mouse.wheel(0, 800)
+for file in saves:
+    # file upload?
+    page.set_default_timeout(120*1000) # 120 seconds timeout for parsing
+    print("uploading", os.path.basename(file), "file")
+    page.set_input_files('input[type="file"]', file)
+    print("File uploaded, waiting to parse...")
+    # wait for map to parse
+    page.wait_for_selector("#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div:nth-child(6) > a:nth-child(2) > i")
+    print("Parsed?")
+    # page.set_default_timeout(30000) # return to default timeout
+    # fullscreen map
+    #page.locator("#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div.leaflet-control-fullscreen.leaflet-bar.leaflet-control > a").click()
+    #page.get_by_text("View Fullscreen").click()
+    page.locator("xpath=/html/body/main/div[2]/div[2]/div[1]/div/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/a").click()
+    print("Fullscreen")
+    
+    #zomm out
+    print("Zooming out")
+    #for x in range(16):
+    #   page.locator("#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div:nth-child(1) > a.leaflet-control-zoom-out > span").click()
+    #   time.sleep(2)
+    #page.mouse.wheel(0, 800)
+    
+    page.goto("https://satisfactory-calculator.com/en/interactive-map#4.85;49935;0")
+    # 4.85 for 4k
+    print("Zoomed out")
+    
+    print("sleep")
+    time.sleep(10)
+    print("sleep done")
+    screenshot_path = datetime.fromtimestamp(os.path.getmtime(file)).strftime('%Y-%m-%d_%H-%M-%S') + '+' + os.path.basename(file)[:-4] + '.png'
+    print("path: ", screenshot_path)
+    page.screenshot(path=screenshot_path)
+    print("Screenshot took")
 
-page.goto("https://satisfactory-calculator.com/en/interactive-map#4.85;49935;0")
-# 4.85 for 4k
-print("Zoomed out")
-
-print("sleep")
-time.sleep(10)
-print("sleep done")
-page.screenshot(path='screenshot.png')
-print("Screenshot took")
+    # exit fullscreen
+    page.locator("xpath=/html/body/main/div[2]/div[2]/div[1]/div/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/a").click()
+    print("Fullscreen exited")
 browser.close()
 
 # cookies 1 selector
