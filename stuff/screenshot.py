@@ -75,13 +75,16 @@ if not os.path.exists(EXTRACTION_SESSION): os.makedirs(EXTRACTION_SESSION)
 
 # metadata file for session and hours
 metadata = open(EXTRACTION_SESSION + '/metadata.csv', "a")
-metadata.write("filename, session_name, time_played\n")
+metadata.write("filename, session_name, time_played, time_played_h, time_played_m, time_played_s\n")
 metadata.close()
 # csv table
 
 # filename - name of the file
 # session_name - name of the session
 # time played - time played
+# time played_h - time played, only hours
+# time played_m - time played, only minutes
+# time played_s - time played, only seconds
 
 for file in saves:
     # file upload?
@@ -98,14 +101,20 @@ for file in saves:
     #page.get_by_text("View Fullscreen").click()
 
     # get session name and time?
-    time_played = page.locator("#saveGameInformation > em:nth-child(2) > small:nth-child(1)").inner_text()
+    time_played = page.locator("#saveGameInformation > em:nth-child(2) > small:nth-child(1)").inner_text()[1:-1]
     print("time:", time_played)
+    x = time_played.split()
+    h=x[0][:-1]
+    m=x[1][:-1]
+    s=x[2][:-1]
+
+
 
     session_name = page.locator("#saveGameInformation > strong:nth-child(1)").inner_text()
     print("session:", session_name)
 
     metadata = open(EXTRACTION_SESSION + '/metadata.csv', "a")
-    metadata.write(os.path.basename(file) + "," + session_name + "," + time_played + "\n")
+    metadata.write(os.path.basename(file) + "," + session_name + "," + time_played + "," + h + "," + m + "," + s +"\n")
     metadata.close()
 
     page.locator("xpath=/html/body/main/div[2]/div[2]/div[1]/div/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/a").click()
@@ -129,10 +138,11 @@ for file in saves:
     print("path: ", screenshot_path)
     page.screenshot(path=screenshot_path)
     print("Screenshot took")
-
+    time.sleep(3)
     # exit fullscreen
     page.locator("xpath=/html/body/main/div[2]/div[2]/div[1]/div/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/a").click()
     print("Fullscreen exited")
+    time.sleep(3)
 
 
 metadata.close()
