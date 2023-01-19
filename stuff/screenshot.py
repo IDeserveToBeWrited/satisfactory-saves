@@ -24,6 +24,8 @@ sys.stdout = Unbuffered(sys.stdout)
 from playwright.sync_api import sync_playwright
 import time
 
+from datetime import datetime
+
 import glob
 import os
 saves = glob.glob(r"C:\Users\doode\AppData\Local\FactoryGame\Saved\SaveGames\76561198048397086\*.sav")
@@ -67,10 +69,23 @@ if page.locator("#patreonModal > div > div > div.modal-header > button > span"):
 
 time.sleep(2)
 
+# "extraction session" from current time
+EXTRACTION_SESSION = "screenshots/" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+if not os.path.exists(EXTRACTION_SESSION): os.makedirs(EXTRACTION_SESSION)
+
+# metadata file for session and hours
+metadata = open(EXTRACTION_SESSION + '/metadata.csv', "a")
+metadata.write("filename, session_name, time_played\n")
+metadata.close()
+# csv table
+
+# filename - name of the file
+# session_name - name of the session
+# time played - time played
 
 for file in saves:
     # file upload?
-    page.set_default_timeout(120*1000) # 120 seconds timeout for parsing
+    page.set_default_timeout(5*60*1000) # 5 minute timeout for parsing
     print("uploading", os.path.basename(file), "file")
     page.set_input_files('input[type="file"]', file)
     print("File uploaded, waiting to parse...")
@@ -81,9 +96,21 @@ for file in saves:
     # fullscreen map
     #page.locator("#leafletMap > div.leaflet-control-container > div.leaflet-top.leaflet-left > div.leaflet-control-fullscreen.leaflet-bar.leaflet-control > a").click()
     #page.get_by_text("View Fullscreen").click()
+
+    # get session name and time?
+    time_played = page.locator("#saveGameInformation > em:nth-child(2) > small:nth-child(1)").inner_text()
+    print("time:", time_played)
+
+    session_name = page.locator("#saveGameInformation > strong:nth-child(1)").inner_text()
+    print("session:", session_name)
+
+    metadata = open(EXTRACTION_SESSION + '/metadata.csv', "a")
+    metadata.write(os.path.basename(file) + "," + session_name + "," + time_played + "\n")
+    metadata.close()
+
     page.locator("xpath=/html/body/main/div[2]/div[2]/div[1]/div/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/a").click()
     print("Fullscreen")
-    
+    time.sleep(3)
     #zomm out
     print("Zooming out")
     #for x in range(16):
@@ -98,7 +125,7 @@ for file in saves:
     print("sleep")
     time.sleep(10)
     print("sleep done")
-    screenshot_path = datetime.fromtimestamp(os.path.getmtime(file)).strftime('%Y-%m-%d_%H-%M-%S') + '+' + os.path.basename(file)[:-4] + '.png'
+    screenshot_path = EXTRACTION_SESSION + "/" + datetime.fromtimestamp(os.path.getmtime(file)).strftime('%Y-%m-%d_%H-%M-%S') + '+' + os.path.basename(file)[:-4] + '.png'
     print("path: ", screenshot_path)
     page.screenshot(path=screenshot_path)
     print("Screenshot took")
@@ -106,6 +133,9 @@ for file in saves:
     # exit fullscreen
     page.locator("xpath=/html/body/main/div[2]/div[2]/div[1]/div/div[1]/div[1]/div[2]/div[2]/div[1]/div[2]/a").click()
     print("Fullscreen exited")
+
+
+metadata.close()
 browser.close()
 
 # cookies 1 selector

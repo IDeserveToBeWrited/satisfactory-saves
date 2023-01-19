@@ -12,6 +12,6 @@ saves = glob.glob(r"C:\Users\doode\AppData\Local\FactoryGame\Saved\SaveGames\765
 for file in saves:
     #print(file)
     print(os.path.basename(file))
-    screenshot_path = datetime.fromtimestamp(os.path.getmtime(file)).strftime('%Y-%m-%d_%H-%M-%S') + '+' + os.path.basename(file)[:-4] + '.png'
+    screenshot_path = 'screenshots/' + datetime.fromtimestamp(os.path.getmtime(file)).strftime('%Y-%m-%d_%H-%M-%S') + '+' + os.path.basename(file)[:-4] + '.png'
     #print("creatin time: ", datetime.fromtimestamp(os.path.getmtime(file)).strftime('%Y-%m-%d_%H-%M-%S'))
     print(screenshot_path)
