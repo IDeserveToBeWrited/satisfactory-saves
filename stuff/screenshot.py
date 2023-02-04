@@ -87,7 +87,33 @@ metadata.close()
 # time played_s - time played, only seconds
 
 for file in saves:
-    start_browser_and_load_site()
+    
+    playwright = sync_playwright().start()
+    browser = playwright.chromium.launch(args=['--start-maximized'], headless=False) # https://github.com/microsoft/playwright/issues/1086#issuecomment-1027450577
+    page = browser.new_page()
+    page.set_viewport_size({"width": 4000, "height": 4000})
+    print("Waiting for site to load...")
+    page.goto("https://satisfactory-calculator.com/en/interactive-map")
+    page.wait_for_load_state('domcontentloaded')
+    page.wait_for_load_state('networkidle')
+    print("Site loaded")
+    
+    # cookies 1
+    if page.locator("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-1litn2c"):
+        page.locator("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-1litn2c").click()
+        print("click 1")
+    
+    # cookies 2
+    if page.locator("body > div.cc-window.cc-banner.cc-type-info.cc-theme-block.cc-bottom.cc-color-override-688238583 > div > a"):
+        page.locator("body > div.cc-window.cc-banner.cc-type-info.cc-theme-block.cc-bottom.cc-color-override-688238583 > div > a").click()
+        print("click 2")
+    
+    # patreon
+    if page.locator("#patreonModal > div > div > div.modal-header > button > span"):    
+        page.locator("#patreonModal > div > div > div.modal-header > button > span").click()
+        print("click 3")
+    
+    time.sleep(2)
 
     # file upload?
     page.set_default_timeout(5*60*1000) # 5 minute timeout for parsing
